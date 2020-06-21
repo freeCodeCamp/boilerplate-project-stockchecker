@@ -4,7 +4,7 @@
 	"description": "FreeCodeCamp Stock Price Checker certification project",
 	"main": "server.js",
 	"scripts": {
-		"start": "node server.js"
+		"start": "nodemon server.js"
 	},
 	"dependencies": {
 		"express": "^4.14.0",
