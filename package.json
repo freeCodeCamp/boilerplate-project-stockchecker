@@ -1,7 +1,7 @@
 {
-	"name": "my-hyperdev-app",
+	"name": "stock-price-checker",
 	"version": "0.0.1",
-	"description": "What am I about?",
+	"description": "FreeCodeCamp Stock Price Checker certification project",
 	"main": "server.js",
 	"scripts": {
 		"start": "node server.js"
