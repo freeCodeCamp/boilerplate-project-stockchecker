@@ -8,6 +8,7 @@
 
 'use strict';
 
+const getDb = require('../db');
 var expect = require('chai').expect;
 var MongoClient = require('mongodb');
 
