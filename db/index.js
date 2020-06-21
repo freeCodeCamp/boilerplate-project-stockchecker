@@ -6,7 +6,8 @@ function getDb() {
   return MongoClient
     .connect(CONNECTION_STRING, {useUnifiedTopology: true})
     .then(client => {
-      return client.db('stocks');
+        console.log(`Database connected successfully.`);
+        return client.db('stocks');
     })
     .catch(err => {
       console.log('Database error: ' + err);
