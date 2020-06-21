@@ -1,3 +1,5 @@
+const https = require('https');
+
 function stockHandler (req, res) {
     console.log(`req is ${JSON.stringify(req.query)}`);
 }
