@@ -1,6 +1,8 @@
 **FreeCodeCamp**- Information Security and Quality Assurance
 ------
 
+[![Run on Repl.it](https://repl.it/badge/github/freeCodeCamp/boilerplate-project-stockchecker)](https://repl.it/github/freeCodeCamp/boilerplate-project-stockchecker)
+
 Project Stock Price Checker
 
 1) SET NODE_ENV to `test` without quotes and set DB to your mongo connection string
