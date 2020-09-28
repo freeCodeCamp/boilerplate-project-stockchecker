@@ -9,3 +9,4 @@ Project Stock Price Checker
 4) You will create all of the functional tests in `tests/2_functional-tests.js`
 
 
+[![Run on Repl.it](https://repl.it/badge/github/freeCodeCamp/boilerplate-project-stockchecker)](https://repl.it/github/freeCodeCamp/boilerplate-project-stockchecker)
