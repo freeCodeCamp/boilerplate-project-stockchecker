@@ -13,6 +13,6 @@ var stockPrices = new StockHandler();
 
 suite('Unit Tests', function(){
 
-//none requiered
+//none required
 
 });
