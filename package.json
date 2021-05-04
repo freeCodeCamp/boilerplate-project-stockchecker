@@ -1,8 +1,7 @@
 {
 	"name": "boilerplate-project-stockchecker",
 	"version": "0.0.1",
-	"description": "",
-	"main": "InfoSec project for freeCodeCamp",
+	"description": "InfoSec project for freeCodeCamp",
 	"scripts": {
 		"start": "node server.js"
 	},
