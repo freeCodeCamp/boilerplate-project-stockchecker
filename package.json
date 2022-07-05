@@ -1,7 +1,8 @@
 {
 	"name": "boilerplate-project-stockchecker",
 	"version": "0.0.1",
-	"description": "InfoSec project for freeCodeCamp",
+	"description": "",
+	"main": "InfoSec project for freeCodeCamp",
 	"scripts": {
 		"start": "node server.js"
 	},
@@ -12,8 +13,11 @@
 		"cors": "^2.8.1",
 		"dotenv": "^8.2.0",
 		"express": "^4.14.0",
-		"helmet": "^3.1.0",
-		"mocha": "^3.2.0"
+		"helmet": "^3.21.3",
+		"mocha": "^3.2.0",
+		"mongodb": "^3.6.2",
+		"mongoose": "^5.11.16",
+		"node-fetch": "^2.6.1"
 	},
 	"repository": {
 		"type": "git",
