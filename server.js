@@ -9,6 +9,16 @@ const fccTestingRoutes  = require('./routes/fcctesting.js');
 const runner            = require('./test-runner');
 
 const app = express();
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise
+
+app.use(function(req, res, next){
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; script-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; style-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; connect-src 'https://replit.com/@duncanndegwa/boilerplate-project-stockchecker#public/script.js';"
+  );
+  next();
+})
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
@@ -16,6 +26,11 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect(process.env['CONNECTIONSTRING'], {
+    useNewURLParser: true,
+    useUnifiedTopology: true,
+}).then(console.log('MongoDB is now connected.'))
 
 //Index page (static HTML)
 app.route('/')

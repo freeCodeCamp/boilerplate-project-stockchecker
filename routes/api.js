@@ -1,10 +1,172 @@
 'use strict';
+const axios = require('axios');
+const mongoose = require('mongoose');
+const anonymize = require('ip-anonymize');
+
+const stockDetails = new mongoose.Schema({
+  stock: String,
+  price: Number,
+  likes: Number,
+  reqIP: Array
+});
+
+const StockDetails = new mongoose.model('StockDetails', stockDetails);
 
 module.exports = function (app) {
 
   app.route('/api/stock-prices')
     .get(function (req, res){
+      let stockData
+      const {stock, like} = req.query
       
-    });
+      let  reqIP = anonymize(req.ip, 16, 16)
+
+      // console.log('stock:', stock, 'like:', like, 'reqIP:', reqIP
+      
+      async function updateOrCreateNewStock(stock, reqIP, like){
+
+        const existingStockDetails = await StockDetails.findOne({stock: stock})
+
+        if(!existingStockDetails){
+          // console.log('There is no similar existingStock');
+            const newStockDetails = await StockDetails.create({
+                stock: stock,
+                price: 0,
+                likes: 0,
+                reqIP: []
+            });
+          
+            await newStockDetails.save();
+
+          if(!newStockDetails.reqIP.includes(reqIP)){
+            newStockDetails.reqIP = newStockDetails.reqIP.push(reqIP);
+            likes === 'true' ? newStockDetails.likes = 1 : newStockDetails.likes = newStockDetails.likes
+            let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('error:', error));
+            newStockDetails.price = price
+            await newStockDetails.save();
+          };
+            return {
+              stock: newStockDetails.stock,
+              price: newStockDetails.price,
+              likes: newStockDetails.likes
+          }
+        }else{
+           // console.log('There is similar existingStock');
+            if(!existingStockDetails.reqIP.includes(reqIP)){
+              existingStockDetails.reqIP.push(reqIP);
+              existingStockDetails.likes = existingStockDetails.likes += 1;
+                       let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('error:', error));
+
+          if(price != null){
+            if(existingStockDetails.price === price){
+              existingStockDetails.price = existingStockDetails.price
+            }else{
+              existingStockDetails.price = price
+            }
+          }else{
+            existingStockDetails.price = existingStockDetails.price;
+          };
+            existingStockDetails.save();
+            }
+
+            return {
+              stock: existingStockDetails.stock,
+              price: existingStockDetails.price,
+              likes: existingStockDetails.likes
+          }
+        }
+
+      };
+
+      async function collectstocks(stock){
+        let stocks = []
+        if(Array.isArray(stock)){
+          for(let i=0; i < stock.length; i++){
+            stocks.push(await stock[i]) 
+          }
+        }else{
+          stocks.push(await stock) 
+        }
+        return stocks
+      }
+      
+    async function getStockData(stock, like, reqIP) {
+      let stocks = await collectstocks(stock)
+        if(like==='true'){
+          if(stocks.length > 1){
+            
+            let stockData1 = await updateOrCreateNewStock(stocks[0], reqIP)
+            
+            let stockData2 = await updateOrCreateNewStock(stocks[1], reqIP)
+
+            Promise.all([stockData1, stockData2]).then(values =>{          
+          let data = [];  
+                                                                          values.map(value => {
+              data.push(value)                                              })
+              res.json({stockData: [
+                {
+                 stock: data[0].stock,
+                 price: data[0].price,
+                 rel_likes: data[0].likes -  data[1].likes
+                },
+                {
+                 stock: data[1].stock,
+                 price: data[1].price,
+                 rel_likes: data[1].likes -  data[0].likes
+                }
+              ]})
+            });
+            
+          }else{
+            let stockData = updateOrCreateNewStock(stocks[0], reqIP);
+             stockData.then(data => {
+               res.json({stockData: {
+                stock: data.stock,
+                price: data.price,
+                likes: data.likes
+              }
+             })
+            })
+          }
+        }else if(like==='false'){
+           if(stocks.length > 1){
+            
+            let stockData1 = await updateOrCreateNewStock(stocks[0], reqIP);            
+            let stockData2 = await updateOrCreateNewStock(stocks[1], reqIP)
+
+            Promise.all([stockData1, stockData2]).then(values =>{          
+          let data = []  
+                                                                          values.map(value => {
+              data.push(value)                                              })
+              res.json({stockData: [
+                {
+                 stock: data[0].stock,
+                 price: data[0].price,
+                 rel_likes: data[0].likes -  data[1].likes
+                },
+                {
+                 stock: data[1].stock,
+                 price: data[1].price,
+                 rel_likes: data[1].likes -  data[0].likes
+                }
+              ]})
+            });
+            
+          }else{
+            await updateOrCreateNewStock (stocks[0], reqIP)
+              .then(data => {
+               res.json({ stockData: {
+                stock: data.stock,
+                price: data.price,
+                likes: data.likes
+              }
+              })
+            })    
+          }
+        }
+    }
+
+    getStockData(stock, like, reqIP);
     
+    });
 };
