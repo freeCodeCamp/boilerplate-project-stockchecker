@@ -39,7 +39,10 @@ module.exports = function (app) {
           
             await newStockDetails.save();
 
-            let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('error:', error));
+            let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => {
+              // console.log('error:', error)  
+              return error
+            } );
           // console.log("newStockDetails' price:", price)
             
             if(price != null){
@@ -68,7 +71,10 @@ module.exports = function (app) {
             // console.log('There is similar existingStock');
             // console.log('1. existingStockDetails before:', existingStockDetails)
           
-              let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('price error:', error));
+              let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => {
+                // console.log('price error:', error)
+                return error
+        });
             existingStockDetails.price === price ? existingStockDetails.price = price : existingStockDetails.price = existingStockDetails.price;
 
             await existingStockDetails.save();
