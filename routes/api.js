@@ -21,60 +21,78 @@ module.exports = function (app) {
       
       let  reqIP = anonymize(req.ip, 16, 16)
 
-      // console.log('stock:', stock, 'like:', like, 'reqIP:', reqIP
+      console.log('stock:', stock, 'like:', like, 'reqIP:', reqIP, '(1)');
       
-      async function updateOrCreateNewStock(stock, reqIP, like){
-
+      async function updateOrCreateNewStock(stock, like, reqIP){
+        // console.log('checking for stock details ....')
+        // console.log('stock:', stock, 'like:', like, 'reqIP:', reqIP, '(2)');
         const existingStockDetails = await StockDetails.findOne({stock: stock})
-
+        
         if(!existingStockDetails){
           // console.log('There is no similar existingStock');
             const newStockDetails = await StockDetails.create({
-                stock: stock,
-                price: 0,
-                likes: 0,
+                stock: '',
+                price: '',
+                likes: '',
                 reqIP: []
             });
           
             await newStockDetails.save();
 
-          if(!newStockDetails.reqIP.includes(reqIP)){
-            newStockDetails.reqIP = newStockDetails.reqIP.push(reqIP);
-            likes === 'true' ? newStockDetails.likes = 1 : newStockDetails.likes = newStockDetails.likes
             let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('error:', error));
-            newStockDetails.price = price
+          // console.log("newStockDetails' price:", price)
+            
+            if(price != null){
+              newStockDetails.stock = stock
+              newStockDetails.price = price
+                if(like === 'true'){
+                  newStockDetails.likes = 1 
+                  newStockDetails.reqIP = newStockDetails.reqIP.push(reqIP);
+                };
+            }else{
+                if(like === 'true'){
+                  newStockDetails.likes = 1 
+                  newStockDetails.reqIP = newStockDetails.reqIP.push(reqIP);
+                };
+            }
+
+
             await newStockDetails.save();
-          };
-            return {
+
+          return {
               stock: newStockDetails.stock,
               price: newStockDetails.price,
               likes: newStockDetails.likes
-          }
-        }else{
-           // console.log('There is similar existingStock');
-            if(!existingStockDetails.reqIP.includes(reqIP)){
-              existingStockDetails.reqIP.push(reqIP);
-              existingStockDetails.likes = existingStockDetails.likes += 1;
-                       let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('error:', error));
-
-          if(price != null){
-            if(existingStockDetails.price === price){
-              existingStockDetails.price = existingStockDetails.price
-            }else{
-              existingStockDetails.price = price
-            }
-          }else{
-            existingStockDetails.price = existingStockDetails.price;
           };
-            existingStockDetails.save();
-            }
+        }else{
+            // console.log('There is similar existingStock');
+            // console.log('1. existingStockDetails before:', existingStockDetails)
+          
+              let price = await axios.get(`https://stock-price-checker-proxy.freecodecamp.rocks/v1/stock/${stock}/quote`).then(response => { return response.data.close }).catch(error => console.log('price error:', error));
+            existingStockDetails.price === price ? existingStockDetails.price = price : existingStockDetails.price = existingStockDetails.price;
 
-            return {
-              stock: existingStockDetails.stock,
-              price: existingStockDetails.price,
-              likes: existingStockDetails.likes
-          }
-        }
+            await existingStockDetails.save();
+
+              if(existingStockDetails.reqIP.includes(reqIP) === false && like === 'true') {
+                      existingStockDetails.likes = existingStockDetails.likes += 1;
+                      existingStockDetails.reqIP = existingStockDetails.reqIP.push(reqIP);
+        
+                // console.log('1. existingStockDetails after:', existingStockDetails);
+                      return {
+                        stock: existingStockDetails.stock,
+                        price: existingStockDetails.price,
+                        likes: existingStockDetails.likes
+                      };
+                  }else{
+               // console.log('2. existingStockDetails after:', existingStockDetails);
+
+                return {
+                  stock: existingStockDetails.stock,
+                  price: existingStockDetails.price,
+                  likes: existingStockDetails.likes
+                };
+              }
+        };
 
       };
 
@@ -87,7 +105,7 @@ module.exports = function (app) {
         }else{
           stocks.push(await stock) 
         }
-        return stocks
+        return stocks;
       }
       
     async function getStockData(stock, like, reqIP) {
@@ -95,14 +113,13 @@ module.exports = function (app) {
         if(like==='true'){
           if(stocks.length > 1){
             
-            let stockData1 = await updateOrCreateNewStock(stocks[0], reqIP)
+            let stockData1 = await updateOrCreateNewStock(stocks[0], like, reqIP)
             
-            let stockData2 = await updateOrCreateNewStock(stocks[1], reqIP)
+            let stockData2 = await updateOrCreateNewStock(stocks[1], like, reqIP);
 
-            Promise.all([stockData1, stockData2]).then(values =>{          
+    Promise.all([stockData1, stockData2]).then(values =>{          
           let data = [];  
-                                                                          values.map(value => {
-              data.push(value)                                              })
+                                                                                     values.map(value => {data.push(value)});
               res.json({stockData: [
                 {
                  stock: data[0].stock,
@@ -118,27 +135,34 @@ module.exports = function (app) {
             });
             
           }else{
-            let stockData = updateOrCreateNewStock(stocks[0], reqIP);
+            let stockData = updateOrCreateNewStock(stocks[0], like, reqIP);
              stockData.then(data => {
-               res.json({stockData: {
-                stock: data.stock,
-                price: data.price,
-                likes: data.likes
+
+               if(data.stock && data.price){
+                  res.json({stockData: {
+                    stock: data.stock,
+                    price: data.price,
+                    likes: data.likes
+                  }
+                 })
+              }else{
+                  res.json({stockData: {
+                    likes: data.likes
+                  }})
               }
-             })
+
             })
           }
         }else if(like==='false'){
            if(stocks.length > 1){
             
-            let stockData1 = await updateOrCreateNewStock(stocks[0], reqIP);            
-            let stockData2 = await updateOrCreateNewStock(stocks[1], reqIP)
+            let stockData1 = await updateOrCreateNewStock(stocks[0], like, reqIP);            
+            let stockData2 = await updateOrCreateNewStock(stocks[1], like, reqIP);
 
             Promise.all([stockData1, stockData2]).then(values =>{          
-          let data = []  
-                                                                          values.map(value => {
-              data.push(value)                                              })
-              res.json({stockData: [
+              let data = []  
+                                                                                         values.map(value => {data.push(value)})
+                res.json({stockData: [
                 {
                  stock: data[0].stock,
                  price: data[0].price,
@@ -153,17 +177,23 @@ module.exports = function (app) {
             });
             
           }else{
-            await updateOrCreateNewStock (stocks[0], reqIP)
+            await updateOrCreateNewStock (stocks[0], like, reqIP)
               .then(data => {
-               res.json({ stockData: {
-                stock: data.stock,
-                price: data.price,
-                likes: data.likes
-              }
-              })
+                if(data.stock && data.price){
+                    res.json({stockData: {
+                      stock: data.stock,
+                      price: data.price,
+                      likes: data.likes
+                    }
+                   })
+                }else{
+                    res.json({stockData: {
+                      likes: data.likes
+                    }})
+                }
             })    
-          }
-        }
+          };
+        };
     }
 
     getStockData(stock, like, reqIP);

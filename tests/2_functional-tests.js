@@ -18,7 +18,7 @@ suite('Functional Tests', function() {
        assert.property(stockData, 'price');
        assert.property(stockData, 'likes');
        done()
-     })
+     });
    });
 
    test('2. Viewing one stock and liking it: GET request to /api/stock-prices/', (done) =>{
@@ -64,6 +64,18 @@ suite('Functional Tests', function() {
       done();
     });
   });
+
+  test('6. You can send a GET request to /api/stock-prices, passing a NASDAQ stock symbol to a stock query parameter. The returned object will contain a property named stockData.', (done) =>{
+     chai.request(server).get('/api/stock-prices?stock=NASDAQ&like=true').end(function(err, res){
+       let stockData = res.body.stockData
+       console.log('Test 6 response:', res.body)
+       // assert.equal(stockData.stock, 'GOOG');
+       // assert.property(stockData, 'stock');
+       // assert.property(stockData, 'price');
+       assert.property(stockData, 'likes');
+       done()
+     });
+   });
    
  });
 });
