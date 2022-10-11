@@ -12,12 +12,13 @@ const app = express();
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
-// "default-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; script-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; style-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; connect-src 'https://replit.com/@duncanndegwa/boilerplate-project-stockchecker#public/script.js';"
+// "script-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; style-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co;"
 
 app.use(function (req, res, next) {
   res.setHeader(
     "Content-Security-Policy",
-    "script-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; style-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; 
+    "default-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; script-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; style-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; connect-src 'https://replit.com/@duncanndegwa/boilerplate-project-stockchecker#public/script.js';"
+
   );
   next();
 });
