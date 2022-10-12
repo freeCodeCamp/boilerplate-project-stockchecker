@@ -18,7 +18,6 @@ app.use(function (req, res, next) {
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; script-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; style-src 'self' https://boilerplate-project-stockchecker.duncanndegwa.repl.co; connect-src 'https://replit.com/@duncanndegwa/boilerplate-project-stockchecker#public/script.js';"
-
   );
   next();
 });
