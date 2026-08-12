@@ -58,10 +58,20 @@ module.exports = function (app) {
       });
     });
 
+  let started = false;
   app.get('/_api/get-tests', cors(), function(req, res, next){
     console.log('requested');
-    if(process.env.NODE_ENV === 'test') return next();
-    res.json({status: 'unavailable'});
+    if(!runner.report && !started) {
+      started = true;
+      try {
+        runner.run();
+      } catch(e) {
+        console.log('Tests are not valid:');
+        console.error(e);
+        return res.json({status: 'unavailable'});
+      }
+    }
+    next();
   },
   function(req, res, next){
     if(!runner.report) return next();
