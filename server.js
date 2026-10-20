@@ -12,7 +12,8 @@ const app = express();
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
-app.use(cors({origin: '*'})); //For FCC testing purposes only
+// Only freeCodeCamp's site may call the API from a browser (its grader runs there)
+app.use(cors({origin: 'https://www.freecodecamp.org'}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
